@@ -22,18 +22,18 @@ public class BotConfig {
     private String botUserName;
     private String botToken;
 
-    private DefaultBotOptions.ProxyType proxyType;
-    private String proxyHost;
-    private int proxyPort;
+//    private DefaultBotOptions.ProxyType proxyType;
+//    private String proxyHost;
+//    private int proxyPort;
 
     @Bean
     public LawnBot lawnBot(TelegramFacade telegramFacade) {
         DefaultBotOptions options = ApiContext
                 .getInstance(DefaultBotOptions.class);
 
-        options.setProxyHost(proxyHost);
-        options.setProxyPort(proxyPort);
-        options.setProxyType(proxyType);
+//        options.setProxyHost(proxyHost);
+//        options.setProxyPort(proxyPort);
+//        options.setProxyType(proxyType);
 
         LawnBot lawnBot = new LawnBot(options, telegramFacade);
         lawnBot.setBotUserName(botUserName);
