@@ -1,0 +1,18 @@
+package ru.home.lawn_bot.botapi;
+
+
+public enum BotState {
+    ASK_AGREEMENT,
+    ASK_SECOND_NAME,
+    ASK_NAME,
+    ASK_BIRTH_DATE,
+    ASK_PHONE_NUMBER,
+    ASK_EMAIL,
+    ASK_HOW_MUCH,
+    ASK_FOR_HOW_LONG,
+    FILLING_APPLICATION,
+    APPLICATION_FILLED,
+    SHOW_USER_APPLICATION,
+    SHOW_MAIN_MENU,
+    SHOW_HELP_MENU;
+}
