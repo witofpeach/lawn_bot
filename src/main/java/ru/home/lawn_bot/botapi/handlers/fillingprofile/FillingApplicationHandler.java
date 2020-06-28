@@ -101,13 +101,27 @@ public class FillingApplicationHandler implements InputMessageHandler {
         }
 
         if (botState.equals(BotState.ASK_FOR_HOW_LONG)) {
-            profileData.setHowMuch(Integer.parseInt(usersAnswer));
+            int howMuch;
+
+            try {
+                howMuch = Integer.parseInt(usersAnswer);
+            } catch (NumberFormatException e) {
+                return messagesService.getReplyMessage(chatId, "reply.askRepeatInput");
+            }
+
+            profileData.setHowMuch(howMuch);
             replyToUser = messagesService.getReplyMessage(chatId, "reply.askForHowLong");
             userDataCache.setUsersCurrentBotState(userId, BotState.APPLICATION_FILLED);
         }
 
         if (botState.equals(BotState.APPLICATION_FILLED)) {
-            profileData.setForHowLong(Integer.parseInt(usersAnswer));
+            int forHowLong;
+            try {
+                forHowLong = Integer.parseInt(usersAnswer);
+            } catch (NumberFormatException e) {
+                return messagesService.getReplyMessage(chatId, "reply.askRepeatInput");
+            }
+            profileData.setForHowLong(forHowLong);
             userDataCache.setUsersCurrentBotState(userId, BotState.SHOW_MAIN_MENU);
             replyToUser = messagesService.getReplyMessage(chatId, "reply.applicationFilled");
         }
