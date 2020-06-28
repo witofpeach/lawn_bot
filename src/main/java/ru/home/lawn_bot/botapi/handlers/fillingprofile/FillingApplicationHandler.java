@@ -14,6 +14,7 @@ import ru.home.lawn_bot.service.ReplyMessagesService;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Component
@@ -23,6 +24,8 @@ public class FillingApplicationHandler implements InputMessageHandler {
     private PhoneNumberButtonService phoneNumberButtonService;
     private NameButtonService nameButtonService;
     DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+    String phoneNumberPattern = "^((\\+7|7|8)+([0-9]){10})$";
+    String emailPattern = "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])";
 
     public FillingApplicationHandler(UserDataCache userDataCache,
                                      ReplyMessagesService messagesService, PhoneNumberButtonService phoneNumberButtonService, NameButtonService nameButtonService) {
@@ -89,13 +92,25 @@ public class FillingApplicationHandler implements InputMessageHandler {
         }
 
         if (botState.equals(BotState.ASK_EMAIL)) {
-            profileData.setPhoneNumber(inputMsg.getContact().getPhoneNumber());
+            if (!inputMsg.hasContact()) {
+                if (Pattern.matches(phoneNumberPattern, usersAnswer)) {
+                    profileData.setPhoneNumber(usersAnswer);
+                } else {
+                    return messagesService.getReplyMessage(chatId, "reply.askRepeatInput");
+                }
+            } else {
+                profileData.setPhoneNumber(inputMsg.getContact().getPhoneNumber());
+            }
             replyToUser = messagesService.getReplyMessage(chatId, "reply.askEmail");
             userDataCache.setUsersCurrentBotState(userId, BotState.ASK_HOW_MUCH);
         }
 
         if (botState.equals(BotState.ASK_HOW_MUCH)) {
-            profileData.setEmail(usersAnswer);
+            if (Pattern.matches(emailPattern, usersAnswer)) {
+                profileData.setEmail(usersAnswer);
+            } else {
+                return messagesService.getReplyMessage(chatId, "reply.askRepeatInput");
+            }
             replyToUser = messagesService.getReplyMessage(chatId, "reply.askHowMuch");
             userDataCache.setUsersCurrentBotState(userId, BotState.ASK_FOR_HOW_LONG);
         }
