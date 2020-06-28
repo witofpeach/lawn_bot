@@ -82,6 +82,7 @@ public class FillingApplicationHandler implements InputMessageHandler {
             try {
                 profileData.setDate(dateFormat.parse(usersAnswer));
             } catch (ParseException e) {
+                return messagesService.getReplyMessage(chatId, "reply.askRepeatInput");
             }
             userDataCache.setUsersCurrentBotState(userId, BotState.ASK_EMAIL);
             replyToUser = phoneNumberButtonService.getPhoneNumberMessage(chatId, "reply.askPhoneNumber");

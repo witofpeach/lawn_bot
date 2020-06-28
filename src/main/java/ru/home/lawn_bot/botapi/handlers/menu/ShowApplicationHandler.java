@@ -26,7 +26,7 @@ public class ShowApplicationHandler implements InputMessageHandler {
         final UserApplicationData applicationData = userDataCache.getUserApplicationData(userId);
 
         userDataCache.setUsersCurrentBotState(userId, BotState.SHOW_MAIN_MENU);
-        return new SendMessage(message.getChatId(), String.format("%s%n -------------------%nФамилия: %s%nИмя: %s%nДата роджения: %s%nНомер телефона: %s%nЭлектронная почта: %s%n" +
+        return new SendMessage(message.getChatId(), String.format("%s%n -------------------%nФамилия: %s%nИмя: %s%nДата рождения: %s%nНомер телефона: %s%nЭлектронная почта: %s%n" +
                         "Мне нужно: %d%nНа срок: %d%n", "Данные по вашей заявке", applicationData.getSecondName(), applicationData.getName(), dateFormat.format(applicationData.getDate()), applicationData.getPhoneNumber(), applicationData.getEmail(),
                 applicationData.getHowMuch(), applicationData.getForHowLong()));
     }
