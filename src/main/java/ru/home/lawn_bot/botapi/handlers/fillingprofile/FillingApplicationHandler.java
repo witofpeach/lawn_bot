@@ -28,7 +28,8 @@ public class FillingApplicationHandler implements InputMessageHandler {
     String emailPattern = "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])";
 
     public FillingApplicationHandler(UserDataCache userDataCache,
-                                     ReplyMessagesService messagesService, PhoneNumberButtonService phoneNumberButtonService, NameButtonService nameButtonService) {
+                                     ReplyMessagesService messagesService, PhoneNumberButtonService phoneNumberButtonService,
+                                     NameButtonService nameButtonService) {
         this.userDataCache = userDataCache;
         this.messagesService = messagesService;
         this.phoneNumberButtonService = phoneNumberButtonService;
@@ -70,13 +71,12 @@ public class FillingApplicationHandler implements InputMessageHandler {
         }
 
         if (botState.equals(BotState.ASK_BIRTH_DATE)) {
-            if (profileData.getName().isEmpty()) {
-                if (inputMsg.hasContact()) {
-                    profileData.setName(inputMsg.getContact().getFirstName());
-                } else if (!inputMsg.getText().isEmpty()) {
-                    profileData.setName(usersAnswer);
-                }
+            if (inputMsg.hasContact()) {
+                profileData.setName(inputMsg.getContact().getFirstName());
+            } else if (!inputMsg.getText().isEmpty()) {
+                profileData.setName(usersAnswer);
             }
+
             replyToUser = messagesService.getReplyMessage(chatId, "reply.askBirthDate");
             userDataCache.setUsersCurrentBotState(userId, BotState.ASK_PHONE_NUMBER);
         }
@@ -87,6 +87,7 @@ public class FillingApplicationHandler implements InputMessageHandler {
             } catch (ParseException e) {
                 return messagesService.getReplyMessage(chatId, "reply.askRepeatInput");
             }
+
             userDataCache.setUsersCurrentBotState(userId, BotState.ASK_EMAIL);
             replyToUser = phoneNumberButtonService.getPhoneNumberMessage(chatId, "reply.askPhoneNumber");
         }
@@ -124,7 +125,12 @@ public class FillingApplicationHandler implements InputMessageHandler {
                 return messagesService.getReplyMessage(chatId, "reply.askRepeatInput");
             }
 
-            profileData.setHowMuch(howMuch);
+            if (howMuch > 0 && howMuch <= 5000000) {
+                profileData.setHowMuch(howMuch);
+            } else {
+                return messagesService.getReplyMessage(chatId, "reply.askRepeatInput");
+            }
+
             replyToUser = messagesService.getReplyMessage(chatId, "reply.askForHowLong");
             userDataCache.setUsersCurrentBotState(userId, BotState.APPLICATION_FILLED);
         }
@@ -136,7 +142,13 @@ public class FillingApplicationHandler implements InputMessageHandler {
             } catch (NumberFormatException e) {
                 return messagesService.getReplyMessage(chatId, "reply.askRepeatInput");
             }
-            profileData.setForHowLong(forHowLong);
+
+            if (forHowLong > 0 && forHowLong <= 5000000) {
+                profileData.setHowMuch(forHowLong);
+            } else {
+                return messagesService.getReplyMessage(chatId, "reply.askRepeatInput");
+            }
+
             userDataCache.setUsersCurrentBotState(userId, BotState.SHOW_MAIN_MENU);
             replyToUser = messagesService.getReplyMessage(chatId, "reply.applicationFilled");
         }
