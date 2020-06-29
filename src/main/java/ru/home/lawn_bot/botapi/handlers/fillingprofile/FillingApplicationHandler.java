@@ -125,7 +125,7 @@ public class FillingApplicationHandler implements InputMessageHandler {
                 return messagesService.getReplyMessage(chatId, "reply.askRepeatInput");
             }
 
-            if (howMuch > 0 && howMuch <= 5000000) {
+            if (howMuch > 500 && howMuch <= 5000000) {
                 profileData.setHowMuch(howMuch);
             } else {
                 return messagesService.getReplyMessage(chatId, "reply.askRepeatInput");
@@ -143,7 +143,7 @@ public class FillingApplicationHandler implements InputMessageHandler {
                 return messagesService.getReplyMessage(chatId, "reply.askRepeatInput");
             }
 
-            if (forHowLong > 0 && forHowLong <= 5000000) {
+            if (forHowLong > 0 && forHowLong <= 60) {
                 profileData.setHowMuch(forHowLong);
             } else {
                 return messagesService.getReplyMessage(chatId, "reply.askRepeatInput");
