@@ -54,7 +54,7 @@ public class FillingApplicationHandler implements InputMessageHandler {
         int userId = inputMsg.getFrom().getId();
         long chatId = inputMsg.getChatId();
 
-        UserApplicationData profileData = userDataCache.getUserApplicationData(userId);
+        UserApplicationData userApplicationData = userDataCache.getUserApplicationData(userId);
         BotState botState = userDataCache.getUsersCurrentBotState(userId);
 
         SendMessage replyToUser = null;
@@ -65,16 +65,16 @@ public class FillingApplicationHandler implements InputMessageHandler {
         }
 
         if (botState.equals(BotState.ASK_NAME)) {
-            profileData.setSecondName(usersAnswer);
+            userApplicationData.setSecondName(usersAnswer);
             replyToUser = nameButtonService.getNameMessage(chatId, "reply.askName");
             userDataCache.setUsersCurrentBotState(userId, BotState.ASK_BIRTH_DATE);
         }
 
         if (botState.equals(BotState.ASK_BIRTH_DATE)) {
             if (inputMsg.hasContact()) {
-                profileData.setName(inputMsg.getContact().getFirstName());
+                userApplicationData.setName(inputMsg.getContact().getFirstName());
             } else if (!inputMsg.getText().isEmpty()) {
-                profileData.setName(usersAnswer);
+                userApplicationData.setName(usersAnswer);
             }
 
             replyToUser = messagesService.getReplyMessage(chatId, "reply.askBirthDate");
@@ -83,7 +83,7 @@ public class FillingApplicationHandler implements InputMessageHandler {
 
         if (botState.equals(BotState.ASK_PHONE_NUMBER)) {
             try {
-                profileData.setDate(dateFormat.parse(usersAnswer));
+                userApplicationData.setDate(dateFormat.parse(usersAnswer));
             } catch (ParseException e) {
                 return messagesService.getReplyMessage(chatId, "reply.askRepeatInput");
             }
@@ -95,12 +95,12 @@ public class FillingApplicationHandler implements InputMessageHandler {
         if (botState.equals(BotState.ASK_EMAIL)) {
             if (!inputMsg.hasContact()) {
                 if (Pattern.matches(phoneNumberPattern, usersAnswer)) {
-                    profileData.setPhoneNumber(usersAnswer);
+                    userApplicationData.setPhoneNumber(usersAnswer);
                 } else {
                     return messagesService.getReplyMessage(chatId, "reply.askRepeatInput");
                 }
             } else {
-                profileData.setPhoneNumber(inputMsg.getContact().getPhoneNumber());
+                userApplicationData.setPhoneNumber(inputMsg.getContact().getPhoneNumber());
             }
             replyToUser = messagesService.getReplyMessage(chatId, "reply.askEmail");
             userDataCache.setUsersCurrentBotState(userId, BotState.ASK_HOW_MUCH);
@@ -108,7 +108,7 @@ public class FillingApplicationHandler implements InputMessageHandler {
 
         if (botState.equals(BotState.ASK_HOW_MUCH)) {
             if (Pattern.matches(emailPattern, usersAnswer)) {
-                profileData.setEmail(usersAnswer);
+                userApplicationData.setEmail(usersAnswer);
             } else {
                 return messagesService.getReplyMessage(chatId, "reply.askRepeatInput");
             }
@@ -126,7 +126,7 @@ public class FillingApplicationHandler implements InputMessageHandler {
             }
 
             if (howMuch > 500 && howMuch <= 5000000) {
-                profileData.setHowMuch(howMuch);
+                userApplicationData.setHowMuch(howMuch);
             } else {
                 return messagesService.getReplyMessage(chatId, "reply.askRepeatInput");
             }
@@ -144,7 +144,7 @@ public class FillingApplicationHandler implements InputMessageHandler {
             }
 
             if (forHowLong > 0 && forHowLong <= 60) {
-                profileData.setHowMuch(forHowLong);
+                userApplicationData.setForHowLong(forHowLong);
             } else {
                 return messagesService.getReplyMessage(chatId, "reply.askRepeatInput");
             }
@@ -153,7 +153,7 @@ public class FillingApplicationHandler implements InputMessageHandler {
             replyToUser = messagesService.getReplyMessage(chatId, "reply.applicationFilled");
         }
 
-        userDataCache.saveUserApplicationData(userId, profileData);
+        userDataCache.saveUserApplicationData(userId, userApplicationData);
 
         return replyToUser;
     }
